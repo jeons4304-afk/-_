@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>태백: 쉬운여행, 쉬운인생</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700&display=swap');
+  :root {
+    --red:#D0021B; --blue:#0047AB; --yellow:#F5C800; --black:#1A1A1A; --white:#FFFFFF;
+    --b:4px solid #1A1A1A; --bt:6px solid #1A1A1A; --bx:10px solid #1A1A1A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Noto Sans KR',sans-serif;background:#e0e0e0;display:flex;justify-content:center;min-height:100vh;}
+  #app{width:100%;max-width:430px;background:white;min-height:100vh;overflow-x:hidden;position:relative;}
+  .screen{display:none;min-height:100vh;flex-direction:column;}
+  .screen.active{display:flex;}
+  /* SPLASH */
+  .mhdr{display:grid;grid-template-columns:3fr 1fr 2fr;grid-template-rows:120px 60px 90px;border-bottom:var(--bx);height:270px;flex-shrink:0;}
+  .mc{border:var(--b);} .mr{background:var(--red);} .mb{background:var(--blue);} .my{background:var(--yellow);} .mw{background:var(--white);} .mk{background:var(--black);}
+  .sp-body{padding:28px 24px;flex:1;display:flex;flex-direction:column;justify-content:space-between;}
+  .sp-title{font-family:'Black Han Sans',sans-serif;font-size:44px;line-height:1.15;color:var(--black);}
+  .sp-title span{color:var(--red);}
+  .sp-desc{font-size:15px;line-height:1.7;color:#444;margin-top:16px;}
+  .mstrip{display:flex;height:24px;margin-top:24px;}
+  .mstrip div{flex:1;border:2px solid var(--black);}
+  .start-btn{background:var(--black);color:white;font-family:'Black Han Sans',sans-serif;font-size:22px;border:none;padding:20px;width:100%;cursor:pointer;letter-spacing:2px;margin-top:24px;}
+  .start-btn:active{background:var(--red);}
+  /* LIST */
+  .ltop{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:50px 24px;border-bottom:var(--bx);}
+  .ltop-title{grid-column:1/4;display:flex;align-items:center;padding:0 16px;font-family:'Black Han Sans',sans-serif;font-size:22px;border-bottom:var(--b);gap:8px;}
+  .dr{width:14px;height:14px;background:var(--red);border:2px solid var(--black);flex-shrink:0;}
+  .db{width:14px;height:14px;background:var(--blue);border:2px solid var(--black);flex-shrink:0;}
+  .lhdr{padding:12px 16px 8px;font-size:12px;color:#888;font-weight:500;border-bottom:2px solid #eee;}
+  .lscroll{overflow-y:auto;flex:1;padding:16px;display:flex;flex-direction:column;gap:14px;}
+  .pcard{display:flex;border:var(--bt);border-radius:4px;overflow:hidden;cursor:pointer;min-height:110px;background:white;transition:transform .1s;}
+  .pcard:active{transform:scale(.98);}
+  .cimg{width:130px;min-width:130px;border-right:var(--b);overflow:hidden;}
+  .cimg img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cinfo{padding:12px 14px;flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;}
+  .cname{font-family:'Black Han Sans',sans-serif;font-size:17px;}
+  .cdesc{font-size:12px;color:#555;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .ctag{display:inline-block;border:2px solid var(--black);font-size:10px;font-weight:700;padding:2px 6px;width:fit-content;}
+  .tr{background:var(--red);color:white;} .tb{background:var(--blue);color:white;} .ty{background:var(--yellow);color:var(--black);} .tk{background:var(--black);color:white;}
+  /* DETAIL */
+  #detail{overflow-y:auto;}
+  .dtop{display:flex;align-items:center;border-bottom:var(--bx);position:sticky;top:0;background:white;z-index:10;height:56px;}
+  .bbtn{width:56px;height:56px;border:none;border-right:var(--bt);background:var(--black);color:white;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .bbtn:active{background:var(--red);}
+  .dtitle{font-family:'Black Han Sans',sans-serif;font-size:17px;padding:0 12px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .ttsbtn{width:56px;height:56px;border:none;border-left:var(--bt);background:var(--yellow);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .ttsbtn:active{background:var(--red);}
+  .ttsbtn.spk{background:var(--red);animation:pulse .8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+  .dhero{width:100%;height:240px;overflow:hidden;border-bottom:var(--bt);}
+  .dhero img{width:100%;height:100%;object-fit:cover;display:block;}
+  .mdiv{display:flex;height:10px;border-bottom:var(--b);}
+  .mdiv .d1{flex:3;background:var(--red);border-right:var(--b);}
+  .mdiv .d2{flex:1;background:var(--yellow);border-right:var(--b);}
+  .mdiv .d3{flex:2;background:var(--blue);border-right:var(--b);}
+  .mdiv .d4{flex:4;background:white;}
+  .dsec{border-bottom:var(--bt);padding:20px 18px;}
+  .slbl{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .slbox{width:14px;height:14px;border:2px solid var(--black);flex-shrink:0;}
+  .stitle{font-family:'Black Han Sans',sans-serif;font-size:20px;}
+  .pdesc{font-size:14px;line-height:1.8;color:#333;}
+  .arow{display:flex;align-items:flex-start;gap:8px;padding:12px 0 0;border-top:2px solid var(--black);margin-top:14px;}
+  .atxt{font-size:13px;color:#333;line-height:1.5;}
+  .mapbox{background:#E8F4FD;border:var(--bt);height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:#666;font-size:13px;}
+  .ilist{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+  .iitem{border:var(--b);padding:10px 12px;display:flex;flex-direction:column;gap:3px;}
+  .iname{font-weight:700;font-size:14px;}
+  .idet{font-size:12px;color:#555;}
+  .idet a{color:var(--blue);text-decoration:none;font-weight:600;}
+  .ptitem{border:var(--b);margin-bottom:12px;overflow:hidden;}
+  .ptph{height:160px;display:flex;align-items:center;justify-content:center;font-size:50px;border-bottom:var(--b);background:#f5f5f5;}
+  .ptbody{padding:12px 14px;}
+  .ptn{font-family:'Black Han Sans',sans-serif;font-size:16px;margin-bottom:6px;}
+  .ptd{font-size:13px;color:#444;line-height:1.7;}
+  .rgrid{border:var(--bt);overflow:hidden;}
+  .ritem{border-bottom:var(--b);}
+  .ritem:last-child{border-bottom:none;}
+  .rimg{height:130px;display:flex;align-items:center;justify-content:center;font-size:36px;background:#f5f5f5;border-bottom:var(--b);}
+  .rbox{padding:12px 14px;}
+  .rname{font-weight:700;font-size:15px;margin-bottom:4px;}
+  .rdet{font-size:12px;color:#555;margin-top:2px;}
+  .rdet a{color:var(--blue);font-weight:600;text-decoration:none;}
+  .btabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-top:var(--bx);position:sticky;bottom:0;background:white;z-index:20;}
+  .tbtn{padding:10px 4px;border:none;border-right:var(--b);background:white;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-family:'Noto Sans KR',sans-serif;font-weight:700;color:var(--black);}
+  .tbtn:last-child{border-right:none;}
+  .ticon{font-size:20px;}
+  .tbtn.active{background:var(--black);color:white;}
+  .tbtn:active{background:var(--red);color:white;}
+  .sub{display:none;}
+  .sub.active{display:block;}
+  .sr .slbox{background:var(--red);} .sb .slbox{background:var(--blue);} .sy .slbox{background:var(--yellow);} .sk .slbox{background:var(--black);}
+  .ttsbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--black);color:white;padding:10px 16px;display:none;align-items:center;gap:10px;z-index:100;border-top:var(--bt);font-size:13px;}
+  .ttsbar.on{display:flex;}
+  .ttsstop{margin-left:auto;background:var(--red);border:2px solid white;color:white;font-weight:700;font-size:12px;padding:4px 10px;cursor:pointer;white-space:nowrap;}
+  ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:#f0f0f0;} ::-webkit-scrollbar-thumb{background:var(--black);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SPLASH -->
+<div id="splash" class="screen active">
+  <div class="mhdr">
+    <div class="mc mr" style="grid-column:1;grid-row:1;"></div>
+    <div class="mc mk" style="grid-column:2;grid-row:1;"></div>
+    <div class="mc mw" style="grid-column:3;grid-row:1;"></div>
+    <div class="mc mw" style="grid-column:1;grid-row:2;"></div>
+    <div class="mc my" style="grid-column:2;grid-row:2;grid-row-end:4;"></div>
+    <div class="mc mb" style="grid-column:3;grid-row:2;"></div>
+    <div class="mc my" style="grid-column:1;grid-row:3;"></div>
+    <div class="mc mr" style="grid-column:3;grid-row:3;"></div>
+  </div>
+  <div class="sp-body">
+    <div>
+      <div class="sp-title">태백:<br><span>쉬운여행,</span><br>쉬운인생</div>
+      <p class="sp-desc">태백: 쉬운여행은 장애인, 노약자의 쉬운 여행을 위해 개발된 관광 도구입니다.</p>
+      <div class="mstrip">
+        <div style="background:var(--red);flex:3;"></div>
+        <div style="background:var(--black);flex:1;"></div>
+        <div style="background:var(--yellow);flex:2;"></div>
+        <div style="background:var(--blue);flex:4;"></div>
+        <div style="background:white;flex:2;"></div>
+      </div>
+    </div>
+    <button class="start-btn" onclick="goList()">관광지 보러 가기 →</button>
+  </div>
+</div>
+
+<!-- LIST -->
+<div id="list" class="screen">
+  <div class="ltop">
+    <div class="mc mr" style="grid-column:1;"></div>
+    <div class="mc my" style="grid-column:2;"></div>
+    <div class="mc mb" style="grid-column:3;"></div>
+    <div class="ltop-title"><div class="dr"></div>태백 관광지<div class="db"></div></div>
+  </div>
+  <div class="lhdr">총 6곳의 관광지 · 탭하여 상세 정보 확인</div>
+  <div class="lscroll" id="listWrap"></div>
+</div>
+
+<!-- DETAIL -->
+<div id="detail" class="screen">
+  <div class="dtop">
+    <button class="bbtn" onclick="goBack()">&#8592;</button>
+    <div class="dtitle" id="dTopTitle">관광지</div>
+    <button class="ttsbtn" id="ttsBtn" onclick="toggleTTS()">&#128266;</button>
+  </div>
+  <div id="sub0" class="sub active">
+    <div class="dhero"><img id="heroImg" src="" alt=""/></div>
+    <div class="mdiv"><div class="d1"></div><div class="d2"></div><div class="d3"></div><div class="d4"></div></div>
+    <div class="dsec sr">
+      <div class="slbl"><div class="slbox"></div><div class="stitle" id="dName"></div></div>
+      <p class="pdesc" id="dDesc"></p>
+      <div class="arow"><span style="font-size:18px;flex-shrink:0;">&#128205;</span><span class="atxt" id="dAddr"></span></div>
+    </div>
+    <div class="dsec sb">
+      <div class="slbl"><div class="slbox"></div><div class="stitle">위치 안내</div></div>
+      <div class="mapbox"><span style="font-size:40px;">&#128506;</span><span id="mapName"></span></div>
+      <div style="margin-top:14px;">
+        <div class="slbl" style="margin-bottom:8px;"><div class="slbox" style="background:var(--red);"></div><div style="font-weight:700;font-size:15px;">주변 병원</div></div>
+        <div class="ilist" id="hospList"></div>
+      </div>
+    </div>
+  </div>
+  <div id="sub1" class="sub">
+    <div class="dsec sy" style="border-top:var(--bt);">
+      <div class="slbl"><div class="slbox"></div><div class="stitle">관광 포인트</div></div>
+      <div id="ptList"></div>
+    </div>
+  </div>
+  <div id="sub2" class="sub">
+    <div class="dsec sk" style="border-top:var(--bt);">
+      <div class="slbl"><div class="slbox"></div><div class="stitle">주변 식당</div></div>
+      <div class="rgrid" id="restList"></div>
+    </div>
+  </div>
+  <div class="btabs">
+    <button class="tbtn active" id="t0" onclick="switchTab(0)"><span class="ticon">&#8505;&#65039;</span>기본정보</button>
+    <button class="tbtn" id="t1" onclick="switchTab(1)"><span class="ticon">&#128248;</span>관광포인트</button>
+    <button class="tbtn" id="t2" onclick="switchTab(2)"><span class="ticon">&#127869;&#65039;</span>주변식당</button>
+    <button class="tbtn" id="t3" onclick="goList()"><span class="ticon">&#127968;</span>목록</button>
+  </div>
+</div>
+
+<div class="ttsbar" id="ttsBar">
+  <span>&#128266;</span>
+  <span id="ttsTxt" style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"></span>
+  <button class="ttsstop" onclick="stopTTS()">정지</button>
+</div>
+</div>
+
+<script>
+const IMGS = {
+  hwangji: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjQwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI0MCIgZmlsbD0iIzg3Q0VFQiIvPgogIDwhLS0g7ZWY64qYIC0tPgogIDxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjQwIiBmaWxsPSIjQzhFNkY1Ii8+CiAgPCEtLSDrsLDqsr0g7IKwIC0tPgogIDxlbGxpcHNlIGN4PSI4MCIgY3k9IjE4MCIgcng9IjEyMCIgcnk9IjgwIiBmaWxsPSIjNENBRjUwIi8+CiAgPGVsbGlwc2UgY3g9IjMyMCIgY3k9IjE3MCIgcng9IjE0MCIgcnk9IjkwIiBmaWxsPSIjMzg4RTNDIi8+CiAgPGVsbGlwc2UgY3g9IjIwMCIgY3k9IjE2MCIgcng9IjE2MCIgcnk9IjEwMCIgZmlsbD0iIzY2QkI2QSIvPgogIDwhLS0g7Jew66q7IC0tPgogIDxlbGxpcHNlIGN4PSIyMDAiIGN5PSIyMDAiIHJ4PSIxNjAiIHJ5PSI1MCIgZmlsbD0iIzFFODhFNSIvPgogIDxlbGxpcHNlIGN4PSIyMDAiIGN5PSIyMDAiIHJ4PSIxNjAiIHJ5PSI1MCIgZmlsbD0idXJsKCNwb25kKSIvPgogIDxkZWZzPgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJwb25kIiBjeD0iNTAlIiBjeT0iNTAlIiByPSI1MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNDJBNUY1IiBzdG9wLW9wYWNpdHk9IjAuOSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxNTY1QzAiIHN0b3Atb3BhY2l0eT0iMC45NSIvPgogICAgPC9yYWRpYWxHcmFkaWVudD4KICA8L2RlZnM+CiAgPCEtLSDrrLwg67CY7Ked7J6EIC0tPgogIDxlbGxpcHNlIGN4PSIxNjAiIGN5PSIxOTUiIHJ4PSIyNSIgcnk9IjYiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuMyIvPgogIDxlbGxpcHNlIGN4PSIyNDAiIGN5PSIyMDUiIHJ4PSIxOCIgcnk9IjQiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuMjUiLz4KICA8IS0tIOuCmOustOuTpCAtLT4KICA8cmVjdCB4PSI1NSIgeT0iMTQ1IiB3aWR0aD0iOCIgaGVpZ2h0PSIzNSIgZmlsbD0iIzVENDAzNyIvPgogIDxjaXJjbGUgY3g9IjU5IiBjeT0iMTM4IiByPSIxOCIgZmlsbD0iIzJFN0QzMiIvPgogIDxyZWN0IHg9IjMyMCIgeT0iMTQwIiB3aWR0aD0iOCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzVENDAzNyIvPgogIDxjaXJjbGUgY3g9IjMyNCIgY3k9IjEzMiIgcj0iMjAiIGZpbGw9IiMzODhFM0MiLz4KICA8IS0tIOuPmeyDgSDsi6Tro6jsl6MgLS0+CiAgPHJlY3QgeD0iMTk1IiB5PSIxNTUiIHdpZHRoPSI2IiBoZWlnaHQ9IjE4IiBmaWxsPSIjOEQ2RTYzIi8+CiAgPGNpcmNsZSBjeD0iMTk4IiBjeT0iMTUyIiByPSI1IiBmaWxsPSIjOEQ2RTYzIi8+CiAgPCEtLSDtkZzsp4DtjJAgLS0+CiAgPHJlY3QgeD0iMTcwIiB5PSIyMjAiIHdpZHRoPSI2MCIgaGVpZ2h0PSIxNiIgcng9IjMiIGZpbGw9IiMxNTY1QzAiLz4KICA8dGV4dCB4PSIyMDAiIHk9IjIzMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI5IiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIj7tmansp4Dsl7Drqrs8L3RleHQ+Cjwvc3ZnPg==",
+  gumunso: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjQwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI0MCIgZmlsbD0iI0IzRTVGQyIvPgogIDwhLS0g7ZWY64qYIC0tPgogIDxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjQjNFNUZDIi8+CiAgPCEtLSDslZTrsr0g7KKMIC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMCwyNDAgMCw2MCAxNDAsODAgMTQwLDI0MCIgZmlsbD0iIzc4OTA5QyIvPgogIDxwb2x5Z29uIHBvaW50cz0iMCwyNDAgMCw2MCAxNDAsODAgMTQwLDI0MCIgZmlsbD0iIzYwN0Q4QiIvPgogIDwhLS0g7JWU67K9IOyasCAtLT4KICA8cG9seWdvbiBwb2ludHM9IjQwMCwyNDAgNDAwLDUwIDI2MCw3NSAyNjAsMjQwIiBmaWxsPSIjNTQ2RTdBIi8+CiAgPCEtLSDspJHslZkg6rWs66mNKOyekOyXsOq1tCkgLS0+CiAgPGVsbGlwc2UgY3g9IjIwMCIgY3k9IjE0NSIgcng9IjY1IiByeT0iNDUiIGZpbGw9IiMxQTIzN0UiLz4KICA8IS0tIOqwleusvCAtLT4KICA8cmVjdCB4PSIwIiB5PSIxOTUiIHdpZHRoPSI0MDAiIGhlaWdodD0iNDUiIGZpbGw9IiMxRTg4RTUiLz4KICA8cmVjdCB4PSIwIiB5PSIxOTUiIHdpZHRoPSI0MDAiIGhlaWdodD0iNDUiIGZpbGw9InVybCgjcml2ZXIpIi8+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InJpdmVyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxNTY1QzAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiM0MkE1RjUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMTU2NUMwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8IS0tIOusvCDtnZDrpoQg7ZGc7ZiEIC0tPgogIDxwYXRoIGQ9Ik01MCwyMTAgUTEyMCwyMDUgMjAwLDIxMCBRMjgwLDIxNSAzNTAsMjA4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiIHN0cm9rZS1vcGFjaXR5PSIwLjQiLz4KICA8IS0tIO2EsOuEkCDrgrQg67mbIC0tPgogIDxlbGxpcHNlIGN4PSIyMDAiIGN5PSIxNDUiIHJ4PSI0MCIgcnk9IjI4IiBmaWxsPSIjMEQ0N0ExIiBmaWxsLW9wYWNpdHk9IjAuOCIvPgogIDwhLS0g7JWU67K9IOyniOqwkCAtLT4KICA8bGluZSB4MT0iNTAiIHkxPSI4MCIgeDI9IjgwIiB5Mj0iMjAwIiBzdHJva2U9IiM1NDZFN0EiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLW9wYWNpdHk9IjAuNSIvPgogIDxsaW5lIHgxPSIxMDAiIHkxPSI3MCIgeDI9IjEyMCIgeTI9IjE4MCIgc3Ryb2tlPSIjNTQ2RTdBIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLW9wYWNpdHk9IjAuNCIvPgogIDwhLS0g7ZGc7KeA7YyQIC0tPgogIDxyZWN0IHg9IjE1NSIgeT0iMjE4IiB3aWR0aD0iOTAiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSIjMEQ0N0ExIi8+CiAgPHRleHQgeD0iMjAwIiB5PSIyMzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iOSIgZmlsbD0id2hpdGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCI+6rWs66y47IaMIOyynOyXsOq4sOuFkOusvDwvdGV4dD4KPC9zdmc+",
+  yongyeon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjQwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI0MCIgZmlsbD0iIzFBMUEyRSIvPgogIDwhLS0g64+Z6rW0IOuCtOu2gCAtLT4KICA8ZWxsaXBzZSBjeD0iMjAwIiBjeT0iMjAwIiByeD0iMjAwIiByeT0iMTIwIiBmaWxsPSIjMTYyMTNFIi8+CiAgPCEtLSDsooXsnKDshJ3rk6QgLS0+CiAgPHBvbHlnb24gcG9pbnRzPSI2MCwwIDc1LDAgNjgsNjAiIGZpbGw9IiM0QTRBNkEiLz4KICA8cG9seWdvbiBwb2ludHM9IjEwMCwwIDExOCwwIDEwOSw3NSIgZmlsbD0iIzVBNUE3QSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMTUwLDAgMTY1LDAgMTU3LDU1IiBmaWxsPSIjNEE0QTZBIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIyMDAsMCAyMTgsMCAyMDksNjUiIGZpbGw9IiM1QTVBN0EiLz4KICA8cG9seWdvbiBwb2ludHM9IjI1NSwwIDI3MCwwIDI2Miw1MCIgZmlsbD0iIzRBNEE2QSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMzA1LDAgMzIyLDAgMzEzLDcwIiBmaWxsPSIjNUE1QTdBIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIzNTAsMCAzNjUsMCAzNTcsNDUiIGZpbGw9IiM0QTRBNkEiLz4KICA8IS0tIOyEneyInOuTpCAtLT4KICA8cG9seWdvbiBwb2ludHM9IjQwLDI0MCA1NSwyNDAgNDcsMTg1IiBmaWxsPSIjNkE0QThBIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIxMzAsMjQwIDE0NSwyNDAgMTM3LDE5NSIgZmlsbD0iIzdBNUE5QSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMjMwLDI0MCAyNDIsMjQwIDIzNiwyMDAiIGZpbGw9IiM2QTRBOEEiLz4KICA8cG9seWdvbiBwb2ludHM9IjMzMCwyNDAgMzQ1LDI0MCAzMzcsMTg4IiBmaWxsPSIjN0E1QTlBIi8+CiAgPCEtLSDsp4DtlZjtmLjsiJgg67CY7IKsIOu5myAtLT4KICA8ZWxsaXBzZSBjeD0iMjAwIiBjeT0iMjEwIiByeD0iMTMwIiByeT0iMjUiIGZpbGw9IiMwRDQ3QTEiIGZpbGwtb3BhY2l0eT0iMC42Ii8+CiAgPCEtLSDrj5nqtbQg7KGw66qFIC0tPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjEyMCIgcj0iNDAiIGZpbGw9IiNFOTFFNjMiIGZpbGwtb3BhY2l0eT0iMC4xNSIvPgogIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjE1MCIgcj0iMjUiIGZpbGw9IiMzRjUxQjUiIGZpbGwtb3BhY2l0eT0iMC4yIi8+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iMTQ1IiByPSIyOCIgZmlsbD0iIzAwOTY4OCIgZmlsbC1vcGFjaXR5PSIwLjIiLz4KICA8IS0tIOyXtOywqCDsi6Tro6jsl6MgLS0+CiAgPHJlY3QgeD0iMTUwIiB5PSIyMTAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMjIiIHJ4PSI1IiBmaWxsPSIjRkY3MDQzIi8+CiAgPGNpcmNsZSBjeD0iMTY1IiBjeT0iMjMyIiByPSI4IiBmaWxsPSIjMzc0NzRGIi8+CiAgPGNpcmNsZSBjeD0iMjM1IiBjeT0iMjMyIiByPSI4IiBmaWxsPSIjMzc0NzRGIi8+CiAgPHJlY3QgeD0iMTU4IiB5PSIyMTUiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxMiIgcng9IjIiIGZpbGw9IiNGRkNDQkMiLz4KICA8cmVjdCB4PSIxODUiIHk9IjIxNSIgd2lkdGg9IjIwIiBoZWlnaHQ9IjEyIiByeD0iMiIgZmlsbD0iI0ZGQ0NCQyIvPgogIDxyZWN0IHg9IjIxMiIgeT0iMjE1IiB3aWR0aD0iMjAiIGhlaWdodD0iMTIiIHJ4PSIyIiBmaWxsPSIjRkZDQ0JDIi8+CiAgPCEtLSDtkZzsp4DtjJAgLS0+CiAgPHJlY3QgeD0iMTQ4IiB5PSIxNCIgd2lkdGg9IjEwNCIgaGVpZ2h0PSIxOCIgcng9IjMiIGZpbGw9IiM4ODBFNEYiLz4KICA8dGV4dCB4PSIyMDAiIHk9IjI3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEwIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIj7smqnsl7Drj5nqtbQ8L3RleHQ+Cjwvc3ZnPg==",
+  taebaeksan: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjQwIj4KICA8IS0tIO2VmOuKmCAtLT4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ic2t5IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNFM0YyRkQiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjQkJERUZCIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI0MCIgZmlsbD0idXJsKCNza3kpIi8+CiAgPCEtLSDrsLDqsr0g7IKwIC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMCwyNDAgMTUwLDYwIDMwMCwyNDAiIGZpbGw9IiM3ODkwOUMiLz4KICA8cG9seWdvbiBwb2ludHM9IjEwMCwyNDAgMjYwLDQwIDQwMCwyNDAiIGZpbGw9IiM2MDdEOEIiLz4KICA8cG9seWdvbiBwb2ludHM9IjUwLDI0MCAyMDAsMjAgMzUwLDI0MCIgZmlsbD0iIzkwQTRBRSIvPgogIDwhLS0g64iIIOuNruyduCDsoJXsg4EgLS0+CiAgPHBvbHlnb24gcG9pbnRzPSIxMjAsODAgMjAwLDIwIDI4MCw4MCAyNTAsMTAwIDIwMCw1MCAxNTAsMTAwIiBmaWxsPSJ3aGl0ZSIvPgogIDwhLS0g7KO866qp64KY66y0IOyLpOujqOyXo+uTpCAtLT4KICA8cG9seWdvbiBwb2ludHM9IjYwLDE4MCA3MiwxMzAgODQsMTgwIiBmaWxsPSIjMkU3RDMyIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIzMTAsMTg1IDMyMiwxMzIgMzM0LDE4NSIgZmlsbD0iIzMzNjkxRSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMzAsMjAwIDQwLDE2MCA1MCwyMDAiIGZpbGw9IiMxQjVFMjAiLz4KICA8cG9seWdvbiBwb2ludHM9IjM1MCwxOTUgMzYwLDE1OCAzNzAsMTk1IiBmaWxsPSIjMkU3RDMyIi8+CiAgPCEtLSDsspzsoJzri6ggLS0+CiAgPHJlY3QgeD0iMTc1IiB5PSIxMDUiIHdpZHRoPSI1MCIgaGVpZ2h0PSI4IiBmaWxsPSIjNzk1NTQ4Ii8+CiAgPHJlY3QgeD0iMTgwIiB5PSI5NSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjOEQ2RTYzIi8+CiAgPHJlY3QgeD0iMTg1IiB5PSI4NyIgd2lkdGg9IjMwIiBoZWlnaHQ9IjgiIGZpbGw9IiM3OTU1NDgiLz4KICA8cmVjdCB4PSIxOTAiIHk9IjgwIiB3aWR0aD0iMjAiIGhlaWdodD0iNyIgZmlsbD0iIzVENDAzNyIvPgogIDwhLS0g64iI6r2DIO2aqOqzvCAtLT4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI5MCIgcj0iMyIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iNzUiIHI9IjIuNSIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CiAgPGNpcmNsZSBjeD0iMTUwIiBjeT0iNjUiIHI9IjIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuNyIvPgogIDxjaXJjbGUgY3g9IjI1MCIgY3k9Ijg1IiByPSIzIiBmaWxsPSJ3aGl0ZSIgZmlsbC1vcGFjaXR5PSIwLjciLz4KICA8Y2lyY2xlIGN4PSI4MCIgY3k9IjEyMCIgcj0iMiIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC42Ii8+CiAgPGNpcmNsZSBjeD0iMzIwIiBjeT0iMTEwIiByPSIyLjUiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuNiIvPgogIDwhLS0g7ZGc7KeA7YyQIC0tPgogIDxyZWN0IHg9IjEzMCIgeT0iMjE4IiB3aWR0aD0iMTQwIiBoZWlnaHQ9IjE2IiByeD0iMyIgZmlsbD0iIzFCNUUyMCIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iMjMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjkiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiPu2DnOuwseyCsCDqta3rpr3qs7Xsm5A8L3RleHQ+Cjwvc3ZnPg==",
+  maebong: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjQwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ibXNreSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjRTFGNUZFIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0IzRTVGQyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZmllbGQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzhCQzM0QSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM1NThCMkYiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjQwIiBmaWxsPSJ1cmwoI21za3kpIi8+CiAgPCEtLSDqtazrpoQgLS0+CiAgPGVsbGlwc2UgY3g9IjgwIiBjeT0iNTAiIHJ4PSI0NSIgcnk9IjIwIiBmaWxsPSJ3aGl0ZSIgZmlsbC1vcGFjaXR5PSIwLjkiLz4KICA8ZWxsaXBzZSBjeD0iMzEwIiBjeT0iNDAiIHJ4PSI1NSIgcnk9IjIyIiBmaWxsPSJ3aGl0ZSIgZmlsbC1vcGFjaXR5PSIwLjg1Ii8+CiAgPCEtLSDrsLDstpTrsK0g67Cw6rK9IOyWuOuNlSAtLT4KICA8ZWxsaXBzZSBjeD0iMjAwIiBjeT0iMjgwIiByeD0iMjgwIiByeT0iMTIwIiBmaWxsPSJ1cmwoI2ZpZWxkKSIvPgogIDwhLS0g67Cw7LaU67CtIOykhCAtLT4KICA8cGF0aCBkPSJNMCwxODAgUTEwMCwxNzAgMjAwLDE3NSBRMzAwLDE4MCA0MDAsMTcwIiBzdHJva2U9IiM1NThCMkYiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPgogIDxwYXRoIGQ9Ik0wLDE5NSBRMTAwLDE4NSAyMDAsMTkwIFEzMDAsMTk1IDQwMCwxODUiIHN0cm9rZT0iIzU1OEIyRiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+CiAgPHBhdGggZD0iTTAsMjEwIFExMDAsMjAwIDIwMCwyMDUgUTMwMCwyMTAgNDAwLDIwMCIgc3Ryb2tlPSIjNTU4QjJGIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz4KICA8IS0tIOuwsOy2lOuTpCAtLT4KICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjE4MyIgcj0iNiIgZmlsbD0iIzdDQjM0MiIvPgogIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjE3OCIgcj0iNyIgZmlsbD0iIzhCQzM0QSIvPgogIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjE4MCIgcj0iNiIgZmlsbD0iIzdDQjM0MiIvPgogIDxjaXJjbGUgY3g9IjI1MCIgY3k9IjE4MiIgcj0iNyIgZmlsbD0iIzhCQzM0QSIvPgogIDxjaXJjbGUgY3g9IjMwMCIgY3k9IjE3NyIgcj0iNiIgZmlsbD0iIzdDQjM0MiIvPgogIDxjaXJjbGUgY3g9IjM1MCIgY3k9IjE3OSIgcj0iNyIgZmlsbD0iIzhCQzM0QSIvPgogIDwhLS0g7ZKN66Cl67Cc7KCE6riwIDEgKOykkeyVmSDtgazqsowpIC0tPgogIDxyZWN0IHg9IjE5NiIgeT0iOTAiIHdpZHRoPSI4IiBoZWlnaHQ9IjkwIiBmaWxsPSIjRUNFRkYxIi8+CiAgPGcgdHJhbnNmb3JtPSJyb3RhdGUoLTMwIDIwMCA5MCkiPjxwb2x5Z29uIHBvaW50cz0iMjAwLDkwIDE5NCw0NSAyMDYsNDUiIGZpbGw9IndoaXRlIiBzdHJva2U9IiNCMEJFQzUiIHN0cm9rZS13aWR0aD0iMSIvPjwvZz4KICA8ZyB0cmFuc2Zvcm09InJvdGF0ZSg5MCAyMDAgOTApIj48cG9seWdvbiBwb2ludHM9IjIwMCw5MCAxOTQsNDUgMjA2LDQ1IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSIjQjBCRUM1IiBzdHJva2Utd2lkdGg9IjEiLz48L2c+CiAgPGcgdHJhbnNmb3JtPSJyb3RhdGUoMjEwIDIwMCA5MCkiPjxwb2x5Z29uIHBvaW50cz0iMjAwLDkwIDE5NCw0NSAyMDYsNDUiIGZpbGw9IndoaXRlIiBzdHJva2U9IiNCMEJFQzUiIHN0cm9rZS13aWR0aD0iMSIvPjwvZz4KICA8Y2lyY2xlIGN4PSIyMDAiIGN5PSI5MCIgcj0iNSIgZmlsbD0iIzkwQTRBRSIvPgogIDwhLS0g7ZKN66Cl67Cc7KCE6riwIDIgKOyijCkgLS0+CiAgPHJlY3QgeD0iODYiIHk9IjEwNSIgd2lkdGg9IjYiIGhlaWdodD0iNzAiIGZpbGw9IiNFQ0VGRjEiLz4KICA8ZyB0cmFuc2Zvcm09InJvdGF0ZSgyMCA4OSAxMDUpIj48cG9seWdvbiBwb2ludHM9Ijg5LDEwNSA4NCw3MiA5NCw3MiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iI0IwQkVDNSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9nPgogIDxnIHRyYW5zZm9ybT0icm90YXRlKDE0MCA4OSAxMDUpIj48cG9seWdvbiBwb2ludHM9Ijg5LDEwNSA4NCw3MiA5NCw3MiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iI0IwQkVDNSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9nPgogIDxnIHRyYW5zZm9ybT0icm90YXRlKDI2MCA4OSAxMDUpIj48cG9seWdvbiBwb2ludHM9Ijg5LDEwNSA4NCw3MiA5NCw3MiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iI0IwQkVDNSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9nPgogIDxjaXJjbGUgY3g9Ijg5IiBjeT0iMTA1IiByPSI0IiBmaWxsPSIjOTBBNEFFIi8+CiAgPCEtLSDtko3roKXrsJzsoITquLAgMyAo7JqwKSAtLT4KICA8cmVjdCB4PSIzMDYiIHk9Ijk4IiB3aWR0aD0iNiIgaGVpZ2h0PSI3NSIgZmlsbD0iI0VDRUZGMSIvPgogIDxnIHRyYW5zZm9ybT0icm90YXRlKC0xMCAzMDkgOTgpIj48cG9seWdvbiBwb2ludHM9IjMwOSw5OCAzMDQsNjUgMzE0LDY1IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSIjQjBCRUM1IiBzdHJva2Utd2lkdGg9IjEiLz48L2c+CiAgPGcgdHJhbnNmb3JtPSJyb3RhdGUoMTEwIDMwOSA5OCkiPjxwb2x5Z29uIHBvaW50cz0iMzA5LDk4IDMwNCw2NSAzMTQsNjUiIGZpbGw9IndoaXRlIiBzdHJva2U9IiNCMEJFQzUiIHN0cm9rZS13aWR0aD0iMSIvPjwvZz4KICA8ZyB0cmFuc2Zvcm09InJvdGF0ZSgyMzAgMzA5IDk4KSI+PHBvbHlnb24gcG9pbnRzPSIzMDksOTggMzA0LDY1IDMxNCw2NSIgZmlsbD0id2hpdGUiIHN0cm9rZT0iI0IwQkVDNSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9nPgogIDxjaXJjbGUgY3g9IjMwOSIgY3k9Ijk4IiByPSI0IiBmaWxsPSIjOTBBNEFFIi8+CiAgPCEtLSDtkZzsp4DtjJAgLS0+CiAgPHJlY3QgeD0iMTE4IiB5PSIyMTgiIHdpZHRoPSIxNjQiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSIjMUI1RTIwIi8+CiAgPHRleHQgeD0iMjAwIiB5PSIyMzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iOSIgZmlsbD0id2hpdGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCI+66ek67SJ7IKwIOuwlOuejOydmCDslrjrjZU8L3RleHQ+Cjwvc3ZnPg==",
+  montorang: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMjQwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3NreSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjRThGNUU5Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI0M4RTZDOSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIyNDAiIGZpbGw9InVybCgjZ3NreSkiLz4KICA8IS0tIOyCsCDrsLDqsr0gLS0+CiAgPHBvbHlnb24gcG9pbnRzPSIwLDI0MCAwLDEwMCAxMjAsNTAgMjQwLDEwMCA0MDAsNjAgNDAwLDI0MCIgZmlsbD0iIzgxQzc4NCIvPgogIDxwb2x5Z29uIHBvaW50cz0iMCwyNDAgMCwxMjAgMTAwLDgwIDIwMCwxMjAgMzUwLDg1IDQwMCwxMTAgNDAwLDI0MCIgZmlsbD0iI0E1RDZBNyIvPgogIDwhLS0g66qp7LSI7KeAIC0tPgogIDxyZWN0IHg9IjAiIHk9IjE3MCIgd2lkdGg9IjQwMCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzY2QkI2QSIvPgogIDwhLS0g7Jq47YOA66asIC0tPgogIDxyZWN0IHg9IjAiIHk9IjE3NSIgd2lkdGg9IjQwMCIgaGVpZ2h0PSI1IiBmaWxsPSIjQTE4ODdGIi8+CiAgPHJlY3QgeD0iNjAiIHk9IjE2NSIgd2lkdGg9IjUiIGhlaWdodD0iMjAiIGZpbGw9IiM3OTU1NDgiLz4KICA8cmVjdCB4PSIxMzAiIHk9IjE2MyIgd2lkdGg9IjUiIGhlaWdodD0iMjIiIGZpbGw9IiM3OTU1NDgiLz4KICA8cmVjdCB4PSIyMDAiIHk9IjE2NSIgd2lkdGg9IjUiIGhlaWdodD0iMjAiIGZpbGw9IiM3OTU1NDgiLz4KICA8cmVjdCB4PSIyNzAiIHk9IjE2MyIgd2lkdGg9IjUiIGhlaWdodD0iMjIiIGZpbGw9IiM3OTU1NDgiLz4KICA8cmVjdCB4PSIzNDAiIHk9IjE2NSIgd2lkdGg9IjUiIGhlaWdodD0iMjAiIGZpbGw9IiM3OTU1NDgiLz4KICA8IS0tIOyCsOyWkSAxIC0tPgogIDxlbGxpcHNlIGN4PSIxMjAiIGN5PSIxOTUiIHJ4PSIyMiIgcnk9IjE1IiBmaWxsPSJ3aGl0ZSIvPgogIDxlbGxpcHNlIGN4PSIxMzgiIGN5PSIxODUiIHJ4PSIxMiIgcnk9IjEwIiBmaWxsPSJ3aGl0ZSIvPgogIDxjaXJjbGUgY3g9IjE0NCIgY3k9IjE4MCIgcj0iNSIgZmlsbD0id2hpdGUiLz4KICA8bGluZSB4MT0iMTA4IiB5MT0iMjA4IiB4Mj0iMTA2IiB5Mj0iMjI1IiBzdHJva2U9IiM5RTlFOUUiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxsaW5lIHgxPSIxMTYiIHkxPSIyMTAiIHgyPSIxMTQiIHkyPSIyMjYiIHN0cm9rZT0iIzlFOUU5RSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPGxpbmUgeDE9IjEyOCIgeTE9IjIxMCIgeDI9IjEzMCIgeTI9IjIyNiIgc3Ryb2tlPSIjOUU5RTlFIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8bGluZSB4MT0iMTM1IiB5MT0iMjA4IiB4Mj0iMTM3IiB5Mj0iMjI0IiBzdHJva2U9IiM5RTlFOUUiIHN0cm9rZS13aWR0aD0iMyIvPgogIDwhLS0g67+UIC0tPgogIDxsaW5lIHgxPSIxNDMiIHkxPSIxNzUiIHgyPSIxMzkiIHkyPSIxNjgiIHN0cm9rZT0iIzc5NTU0OCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPGxpbmUgeDE9IjE0OCIgeTE9IjE3NSIgeDI9IjE1MiIgeTI9IjE2OCIgc3Ryb2tlPSIjNzk1NTQ4IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8IS0tIOyCsOyWkSAyIC0tPgogIDxlbGxpcHNlIGN4PSIyODAiIGN5PSIxOTIiIHJ4PSIyMCIgcnk9IjEzIiBmaWxsPSIjRkFGQUZBIi8+CiAgPGVsbGlwc2UgY3g9IjI5NiIgY3k9IjE4MyIgcng9IjExIiByeT0iOSIgZmlsbD0iI0ZBRkFGQSIvPgogIDxjaXJjbGUgY3g9IjMwMiIgY3k9IjE3OCIgcj0iNC41IiBmaWxsPSIjRkFGQUZBIi8+CiAgPGxpbmUgeDE9IjI2OCIgeTE9IjIwNCIgeDI9IjI2NiIgeTI9IjIyMCIgc3Ryb2tlPSIjOUU5RTlFIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8bGluZSB4MT0iMjc2IiB5MT0iMjA1IiB4Mj0iMjc1IiB5Mj0iMjIxIiBzdHJva2U9IiM5RTlFOUUiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxsaW5lIHgxPSIyODYiIHkxPSIyMDQiIHgyPSIyODgiIHkyPSIyMjAiIHN0cm9rZT0iIzlFOUU5RSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPGxpbmUgeDE9IjI5MyIgeTE9IjIwMyIgeDI9IjI5NSIgeTI9IjIxOSIgc3Ryb2tlPSIjOUU5RTlFIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8bGluZSB4MT0iMzAxIiB5MT0iMTczIiB4Mj0iMjk3IiB5Mj0iMTY3IiBzdHJva2U9IiM3OTU1NDgiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSIzMDYiIHkxPSIxNzMiIHgyPSIzMTAiIHkyPSIxNjciIHN0cm9rZT0iIzc5NTU0OCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPCEtLSDsubTtjpgv6rG066y8IC0tPgogIDxyZWN0IHg9IjEwIiB5PSIxNDAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI0MCIgZmlsbD0iI0ZGQ0NCQyIvPgogIDxwb2x5Z29uIHBvaW50cz0iNSwxNDAgODUsMTQwIDQ1LDExNSIgZmlsbD0iI0VGOUE5QSIvPgogIDxyZWN0IHg9IjI1IiB5PSIxNTUiIHdpZHRoPSIxNSIgaGVpZ2h0PSIyNSIgZmlsbD0iIzc5NTU0OCIvPgogIDxyZWN0IHg9IjUwIiB5PSIxNTAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxNSIgZmlsbD0iI0IzRTVGQyIvPgogIDwhLS0g7ZGc7KeA7YyQIC0tPgogIDxyZWN0IHg9IjEyMCIgeT0iMjE4IiB3aWR0aD0iMTYwIiBoZWlnaHQ9IjE2IiByeD0iMyIgZmlsbD0iIzJFN0QzMiIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iMjMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjkiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiPuuqve2GoOuekSDsgrDslpHrqqnsnqU8L3RleHQ+Cjwvc3ZnPg=="
+};
+
+const places = [
+  {
+    id:0, imgKey:'hwangji', name:'황지연못', tag:'연못', tc:'tb',
+    desc:'황지연못은 낙동강의 발원지로, 둘레가 100m인 상지, 50m인 중지, 30m인 하지로 나뉘어 있는 연못입니다.',
+    address:'강원특별자치도 태백시 황지연못길 12',
+    points:[{name:'황부자 며느리 동상',emoji:'🗿',desc:'황부자 설화에 등장한 며느리를 기리며 세운 동상입니다. 스님의 충고를 어겨 돌이 되었다는 전설이 담겨 있습니다.'}],
+    hospitals:[{name:'신태백병원',addr:'태백시 황지로 23',tel:'033-553-9100'},{name:'우리들의원',addr:'태백시 감천로 18',tel:'033-553-6600'},{name:'한독의원',addr:'태백시 강원남부로 78',tel:'033-552-8877'}],
+    restaurants:[{name:'태성실비식당',addr:'태백시 감천로 4',tel:'033-552-5287',e:'🍲'},{name:'맛나분식',addr:'태백시 황지동 44-17',tel:'033-552-2806',e:'🍜'},{name:'준호감자탕',addr:'태백시 황지로 139-9',tel:'-',e:'🥘'}]
+  },
+  {
+    id:1, imgKey:'gumunso', name:'구문소', tag:'천연기념물', tc:'tr',
+    desc:'구문소는 낙동강의 상류인 철암천에 합류되는 소로, 대한민국의 천연기념물로 지정되어 보호되고 있습니다.',
+    address:'강원특별자치도 태백시 동점동 산 10-1',
+    points:[{name:'자하문 터널',emoji:'🕳️',desc:'일제강점기 시절 석탄 수송을 위해 인공으로 뚫은 암벽 터널로, 자연이 만든 물길 바로 옆에 나란히 있어 독특한 포토존입니다.'},{name:'7형제 바위 & 삼형제 폭포',emoji:'🪨',desc:'구문소 뒤편 산책로를 따라 걷다 보면 기암괴석과 시원하게 쏟아지는 폭포를 만날 수 있는 훌륭한 힐링 코스입니다.'}],
+    hospitals:[{name:'근로복지공단 태백병원',addr:'태백시 보드미길 8',tel:'033-580-3114'}],
+    restaurants:[{name:'구문소식당',addr:'태백시 석공길 22',tel:'033-582-4581',e:'🍽️'},{name:'다복한정식',addr:'태백시 장성로 36',tel:'033-581-4200',e:'🍱'},{name:'초막고갈두',addr:'태백시 백두대간로 304',tel:'033-553-7388',e:'🥩'}]
+  },
+  {
+    id:2, imgKey:'yongyeon', name:'용연동굴', tag:'동굴', tc:'tk',
+    desc:'용연동굴은 강원특별자치도 지정 기념물로, 지질학적 가치와 아름다움을 동시에 지닌 천연 석회암 동굴입니다.',
+    address:'강원특별자치도 태백시 태백로 283-29',
+    points:[{name:'용연열차 (홍룡열차)',emoji:'🚂',desc:'주차장에서 동굴 입구까지 귀여운 코끼리 모양의 용연열차를 타고 구불구불한 산길을 따라 편하게 이동할 수 있습니다.'}],
+    hospitals:[{name:'신태백병원',addr:'태백시 황지로 23',tel:'033-553-9100'},{name:'근로복지공단 태백병원',addr:'태백시 보드미길 8',tel:'033-580-3114'},{name:'가온의원',addr:'태백시 황지동 주변',tel:'033-553-8871'}],
+    restaurants:[{name:'용연동굴식당',addr:'태백시 태백로 283-22',tel:'033-553-8686',e:'🍽️'},{name:'태백골',addr:'태백시 백두대간로 5',tel:'033-553-8200',e:'🥘'},{name:'태백닭갈비',addr:'태백시 중앙남1길 10',tel:'033-553-8119',e:'🍗'}]
+  },
+  {
+    id:3, imgKey:'taebaeksan', name:'태백산 국립공원', tag:'국립공원', tc:'tb',
+    desc:'태백산 국립공원은 민족의 영산으로 불리는 태백산의 수려한 자연경관과 역사적 가치를 보존하고 있는 곳입니다. 당골광장은 태백산 등반의 주요 시작점입니다.',
+    address:'강원특별자치도 태백시 천제단길 162',
+    points:[{name:'태백산 천제단',emoji:'🏛️',desc:'태백산 정상부에 위치한 천제단은 예로부터 하늘에 제사를 지내던 신성한 제단입니다. 겨울철 아름다운 눈꽃과 주목 군락지가 어우러진 비경을 감상할 수 있습니다.'},{name:'태백산 석장승',emoji:'🗿',desc:'당골광장 진입로에 들어서면 태백산의 신령함을 지키는 거대한 석장승들을 만날 수 있습니다. 민속 문화재로 지정된 한국 고유의 토속 신앙을 엿볼 수 있습니다.'}],
+    hospitals:[{name:'고려의원',addr:'태백시 태백산로 4756',tel:'033-552-3118'},{name:'현대의원',addr:'태백시 번영로 237',tel:'033-552-3451'},{name:'태백중앙병원',addr:'태백시 보드미길 8',tel:'033-580-3114'}],
+    restaurants:[{name:'당골식당',addr:'태백시 천제단길 168-2',tel:'033-552-0487',e:'🍲'},{name:'태백산민박촌식당',addr:'태백시 천제단길 131',tel:'033-553-7333',e:'🍽️'},{name:'백두산한우실비',addr:'태백시 천제단길 142',tel:'033-552-3211',e:'🥩'}]
+  },
+  {
+    id:4, imgKey:'maebong', name:'매봉산 바람의 언덕', tag:'전망대', tc:'ty',
+    desc:'매봉산 바람의 언덕은 해발 1,200m가 넘는 고지대에 위치한 곳으로, 푸른 고랭지 배추밭과 거대한 풍력발전기가 어우러져 이국적이고 장엄한 풍경을 자아내는 태백의 대표 명소입니다.',
+    address:'강원특별자치도 태백시 매봉산길 206',
+    points:[{name:'바람의 언덕 전망대',emoji:'🌿',desc:'탁 트인 시야로 백두대간의 능선과 끝없이 펼쳐진 초록빛 배추밭을 한눈에 담을 수 있는 최고의 조망 지점입니다. 거대한 흰색 풍차를 배경으로 인생 사진을 남기기 좋습니다.'},{name:'백두대간 은하수 & 별 관측',emoji:'🌌',desc:'해발 1,200m의 고지대에 광해가 거의 없어, 밤이 되면 하늘 가득 쏟아지는 별과 은하수를 관측할 수 있는 국내 최고의 야간 출사지입니다.'}],
+    hospitals:[{name:'신태백병원',addr:'태백시 황지로 23',tel:'033-553-9100'},{name:'우리들의원',addr:'태백시 감천로 18',tel:'033-553-6600'},{name:'한독의원',addr:'태백시 강원남부로 78',tel:'033-552-8877'}],
+    restaurants:[{name:'삼수령산장',addr:'태백시 적각길 145',tel:'033-552-0941',e:'🏔️'},{name:'매봉산가든',addr:'태백시 매봉산길 25',tel:'033-553-5244',e:'🌿'},{name:'피재닭갈비',addr:'태백시 태백로 1365',tel:'033-553-7853',e:'🍗'}]
+  },
+  {
+    id:5, imgKey:'montorang', name:'몽토랑 산양목장', tag:'체험목장', tc:'tr',
+    desc:'몽토랑 산양목장은 해발 800m의 고원 지대에 위치하여, 맑은 공기 속에서 유기농 풀을 먹고 자라는 산양들을 가까이서 만나고 교감할 수 있는 자연 친화적 체험형 목장입니다.',
+    address:'강원특별자치도 태백시 효자1길 27-2',
+    points:[{name:'산양 방목 초지 & 피크닉',emoji:'🌾',desc:'푸른 초원 위에서 자유롭게 뛰어노는 산양들에게 먹이를 주며 교감할 수 있습니다. 목장 내 카페에서 탁 트인 태백 시내 전경을 바라보며 신선한 산양유와 디저트를 즐길 수 있습니다.'}],
+    hospitals:[{name:'고려의원',addr:'태백시 태백산로 4756',tel:'033-552-3118'},{name:'현대의원',addr:'태백시 번영로 237',tel:'033-552-3451'},{name:'태백중앙병원',addr:'태백시 보드미길 8',tel:'033-580-3114'}],
+    restaurants:[{name:'백번의봄',addr:'태백시 태백로 923',tel:'0507-1378-0799',e:'🌸'},{name:'태백닭갈비',addr:'태백시 중앙남1길 10',tel:'033-552-6525',e:'🍗'},{name:'태백으뜸한우',addr:'태백시 번영로 346',tel:'033-552-4700',e:'🥩'}]
+  }
+];
+
+let cur=null, curTab=0, synth=window.speechSynthesis, speaking=false;
+
+function renderList(){
+  document.getElementById('listWrap').innerHTML=places.map(p=>`
+    <div class="pcard" onclick="openDetail(${p.id})">
+      <div class="cimg"><img src="${IMGS[p.imgKey]}" alt="${p.name}" loading="lazy"/></div>
+      <div class="cinfo">
+        <div class="ctag ${p.tc}">${p.tag}</div>
+        <div class="cname">${p.name}</div>
+        <div class="cdesc">${p.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function goList(){stopTTS();show('list');}
+function goBack(){stopTTS();goList();}
+
+function openDetail(id){
+  cur=places[id];
+  show('detail');
+  document.getElementById('detail').scrollTo(0,0);
+  document.getElementById('dTopTitle').textContent=cur.name;
+  document.getElementById('heroImg').src=IMGS[cur.imgKey];
+  document.getElementById('heroImg').alt=cur.name;
+  document.getElementById('dName').textContent=cur.name;
+  document.getElementById('dDesc').textContent=cur.desc;
+  document.getElementById('dAddr').textContent=cur.address;
+  document.getElementById('mapName').textContent=cur.name+' 위치';
+  document.getElementById('hospList').innerHTML=cur.hospitals.map(h=>`
+    <div class="iitem">
+      <div class="iname">&#127973; ${h.name}</div>
+      <div class="idet">&#128205; ${h.addr}</div>
+      <div class="idet">&#128222; <a href="tel:${h.tel}">${h.tel}</a></div>
+    </div>`).join('');
+  document.getElementById('ptList').innerHTML=cur.points.map(p=>`
+    <div class="ptitem">
+      <div class="ptph">${p.emoji}</div>
+      <div class="ptbody"><div class="ptn">&#128204; ${p.name}</div><p class="ptd">${p.desc}</p></div>
+    </div>`).join('');
+  document.getElementById('restList').innerHTML=cur.restaurants.map(r=>`
+    <div class="ritem">
+      <div class="rimg">${r.e}</div>
+      <div class="rbox">
+        <div class="rname">${r.name}</div>
+        <div class="rdet">&#128205; ${r.addr}</div>
+        <div class="rdet">&#128222; <a href="tel:${r.tel}">${r.tel}</a></div>
+      </div>
+    </div>`).join('');
+  switchTab(0);
+}
+
+function switchTab(i){
+  curTab=i;
+  ['sub0','sub1','sub2'].forEach((id,j)=>document.getElementById(id).classList.toggle('active',j===i));
+  for(let j=0;j<3;j++)document.getElementById('t'+j).classList.toggle('active',j===i);
+  document.getElementById('detail').scrollTo(0,56);
+}
+
+function getTTSTxt(){
+  if(!cur)return'';
+  if(curTab===0)return cur.name+'. '+cur.desc+' 주소: '+cur.address+'. 주변 병원: '+cur.hospitals.map(h=>h.name+', 전화 '+h.tel).join('. ');
+  if(curTab===1)return '관광 포인트. '+cur.points.map(p=>p.name+'. '+p.desc).join(' 다음. ');
+  if(curTab===2)return '주변 식당. '+cur.restaurants.map(r=>r.name+', 전화 '+r.tel).join('. ');
+  return'';
+}
+function toggleTTS(){speaking?stopTTS():startTTS();}
+function startTTS(){
+  if(!synth)return; stopTTS();
+  const txt=getTTSTxt(); if(!txt)return;
+  const u=new SpeechSynthesisUtterance(txt);
+  u.lang='ko-KR'; u.rate=0.88;
+  u.onstart=()=>{speaking=true;document.getElementById('ttsBtn').classList.add('spk');document.getElementById('ttsBar').classList.add('on');document.getElementById('ttsTxt').textContent=txt;};
+  const end=()=>{speaking=false;document.getElementById('ttsBtn').classList.remove('spk');document.getElementById('ttsBar').classList.remove('on');};
+  u.onend=end; u.onerror=end; synth.speak(u);
+}
+function stopTTS(){if(synth)synth.cancel();speaking=false;document.getElementById('ttsBtn').classList.remove('spk');document.getElementById('ttsBar').classList.remove('on');}
+
+renderList();
+</script>
+</body>
+</html>
